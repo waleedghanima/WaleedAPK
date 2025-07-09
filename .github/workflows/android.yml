@@ -1,0 +1,3409 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام مكتب الأشغال العامة والطرق</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            direction: rtl;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+        }
+
+        .header p {
+            color: #7f8c8d;
+            font-size: 1.1rem;
+        }
+
+        .login-container {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            max-width: 400px;
+            margin: 100px auto;
+        }
+
+        .login-form {
+            text-align: center;
+        }
+
+        .login-form h2 {
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: right;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #34495e;
+            font-weight: bold;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ecf0f1;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s;
+            margin: 5px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+        }
+
+        .main-nav {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .nav-item {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+
+        .nav-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .nav-item i {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .content-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #ecf0f1;
+        }
+
+        .section-title {
+            color: #2c3e50;
+            font-size: 1.8rem;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: right;
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        th {
+            background: #f8f9fa;
+            color: #2c3e50;
+            font-weight: bold;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
+        .action-buttons .btn {
+            padding: 8px 12px;
+            font-size: 14px;
+        }
+
+        .search-bar {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .search-bar input {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+
+        .close {
+            color: #aaa;
+            float: left;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #000;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .file-upload {
+            border: 2px dashed #3498db;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .file-upload:hover {
+            background: #f8f9fa;
+        }
+
+        .file-upload input {
+            display: none;
+        }
+
+        .file-list {
+            margin-top: 15px;
+        }
+
+        .file-item {
+            background: #f8f9fa;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            transition: all 0.3s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .file-item:hover {
+            background: #e9ecef;
+        }
+
+        .file-item i {
+            margin-left: 8px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .stat-label {
+            margin-top: 5px;
+            opacity: 0.9;
+        }
+
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .user-info {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .contact-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .status-badge.active {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-badge.expired {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .status-badge.completed {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-badge.pass {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-badge.fail {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .status-badge.conditional {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .permission-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            background: #e0f7fa;
+            color: #00838f;
+            margin: 2px;
+        }
+
+        @media (max-width: 768px) {
+            .nav-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .search-bar {
+                flex-direction: column;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+
+        .print-section {
+            display: none;
+        }
+
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            
+            .print-section, .print-section * {
+                visibility: visible;
+            }
+            
+            .print-section {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                display: block !important;
+                font-family: 'Arial' !important;
+                padding: 20px;
+            }
+
+            .print-header {
+                text-align: center;
+                margin-bottom: 30px;
+                border-bottom: 2px solid #333;
+                padding-bottom: 20px;
+            }
+
+            .print-footer {
+                text-align: center;
+                margin-top: 30px;
+                border-top: 1px solid #333;
+                padding-top: 10px;
+                font-size: 12px;
+            }
+
+            .print-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin: 20px 0;
+            }
+
+            .print-table th, .print-table td {
+                border: 1px solid #ddd;
+                padding: 8px;
+                text-align: right;
+            }
+
+            .print-table th {
+                background-color: #f2f2f2;
+            }
+
+            .print-attachments {
+                margin-top: 30px;
+                page-break-inside: avoid;
+            }
+
+            .print-attachment-item {
+                margin-bottom: 10px;
+                padding: 5px;
+                border-bottom: 1px dashed #ccc;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- صفحة تسجيل الدخول -->
+    <div id="login-page">
+        <div class="container">
+            <div class="header">
+                <h1><i class="fas fa-building"></i> نظام مكتب الأشغال العامة والطرق</h1>
+                <p>نظام إدارة التراخيص والخدمات الحكومية</p>
+                <div class="contact-info">
+                    <p><i class="fas fa-phone"></i> الهاتف: +967735382468</p>
+                    <p><i class="fas fa-envelope"></i> البريد الإلكتروني: wajag93@gmail.com</p>
+                    <p><i class="fas fa-user"></i> المطور: م. وليد غنيمة</p>
+                </div>
+            </div>
+            
+            <div class="login-container">
+                <form class="login-form" onsubmit="login(event)">
+                    <h2><i class="fas fa-sign-in-alt"></i> تسجيل الدخول</h2>
+                    <div class="form-group">
+                        <label for="username"><i class="fas fa-user"></i> اسم المستخدم</label>
+                        <input type="text" id="username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password"><i class="fas fa-lock"></i> كلمة المرور</label>
+                        <input type="password" id="password" required>
+                    </div>
+                    <button type="submit" class="btn">
+                        <i class="fas fa-sign-in-alt"></i> دخول
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- الصفحة الرئيسية -->
+    <div id="main-page" style="display: none;">
+        <div class="container">
+            <!-- معلومات المستخدم -->
+            <div class="user-info">
+                <div>
+                    <span id="user-name"></span> - <span id="user-department"></span>
+                    <div id="user-permissions" style="font-size: 12px; margin-top: 5px;"></div>
+                </div>
+                <div>
+                    <button class="btn btn-secondary" onclick="backupData()" style="margin-right: 10px;">
+                        <i class="fas fa-cloud-upload-alt"></i> نسخ احتياطي
+                    </button>
+                    <button class="btn btn-secondary" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i> خروج
+                    </button>
+                </div>
+            </div>
+
+            <!-- الإحصائيات -->
+            <div class="stats-grid">
+                <div class="stat-card" onclick="showSection('building-licenses')">
+                    <div class="stat-number" id="building-licenses-count">0</div>
+                    <div class="stat-label">تراخيص البناء</div>
+                </div>
+                <div class="stat-card" onclick="showSection('professional-licenses')">
+                    <div class="stat-number" id="professional-licenses-count">0</div>
+                    <div class="stat-label">تراخيص مزاولة المهنة</div>
+                </div>
+                <div class="stat-card" onclick="showSection('environment-health')">
+                    <div class="stat-number" id="environment-records-count">0</div>
+                    <div class="stat-label">سجلات صحة البيئة</div>
+                </div>
+                <div class="stat-card" onclick="showSection('finance')">
+                    <div class="stat-number" id="finance-records-count">0</div>
+                    <div class="stat-label">السجلات المالية</div>
+                </div>
+                <div class="stat-card" onclick="showSection('yard-fees')">
+                    <div class="stat-number" id="yard-contracts-count">0</div>
+                    <div class="stat-label">رسوم الساحات</div>
+                </div>
+                <div class="stat-card" onclick="backupData()" style="cursor: pointer;">
+                    <div class="stat-number"><i class="fas fa-cloud-upload-alt"></i></div>
+                    <div class="stat-label">نسخ احتياطي</div>
+                </div>
+            </div>
+
+            <!-- التنقل الرئيسي -->
+            <div class="main-nav">
+                <div class="nav-grid">
+                    <div class="nav-item" onclick="showSection('building-licenses')" id="building-nav">
+                        <i class="fas fa-building"></i>
+                        <div>تراخيص البناء</div>
+                    </div>
+                    <div class="nav-item" onclick="showSection('professional-licenses')" id="professional-nav">
+                        <i class="fas fa-certificate"></i>
+                        <div>مزاولة المهنة</div>
+                    </div>
+                    <div class="nav-item" onclick="showSection('environment-health')" id="environment-nav">
+                        <i class="fas fa-leaf"></i>
+                        <div>صحة البيئة</div>
+                    </div>
+                    <div class="nav-item" onclick="showSection('finance')" id="finance-nav">
+                        <i class="fas fa-money-bill"></i>
+                        <div>المالية</div>
+                    </div>
+                    <div class="nav-item" onclick="showSection('yard-fees')" id="yard-nav">
+                        <i class="fas fa-warehouse"></i>
+                        <div>رسوم الساحات</div>
+                    </div>
+                    <div class="nav-item" onclick="showSection('user-management')" id="admin-nav" style="display: none;">
+                        <i class="fas fa-users-cog"></i>
+                        <div>إدارة المستخدمين</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- قسم تراخيص البناء -->
+            <div id="building-licenses" class="content-section">
+                <div class="section-header">
+                    <h2 class="section-title"><i class="fas fa-building"></i> تراخيص البناء</h2>
+                    <button class="btn" onclick="openModal('building-license-modal')" id="add-building-btn">
+                        <i class="fas fa-plus"></i> إضافة ترخيص جديد
+                    </button>
+                </div>
+
+                <div class="search-bar">
+                    <input type="text" id="search-building" placeholder="البحث في التراخيص..." onkeyup="searchBuilding()">
+                    <button class="btn btn-success" onclick="exportToExcel('building')">
+                        <i class="fas fa-file-excel"></i> تصدير Excel
+                    </button>
+                    <button class="btn btn-secondary" onclick="printSection('building')">
+                        <i class="fas fa-print"></i> طباعة
+                    </button>
+                    <button class="btn btn-warning" onclick="exportToPDF('building')">
+                        <i class="fas fa-file-pdf"></i> تصدير PDF
+                    </button>
+                </div>
+
+                <div class="table-container">
+                    <table id="building-licenses-table">
+                        <thead>
+                            <tr>
+                                <th>رقم الترخيص</th>
+                                <th>اسم طالب الترخيص</th>
+                                <th>نوع المبنى</th>
+                                <th>الموقع</th>
+                                <th>التاريخ</th>
+                                <th>إجمالي الرسوم</th>
+                                <th>الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- قسم مزاولة المهنة -->
+            <div id="professional-licenses" class="content-section">
+                <div class="section-header">
+                    <h2 class="section-title"><i class="fas fa-certificate"></i> تراخيص مزاولة المهنة</h2>
+                    <button class="btn" onclick="openModal('professional-license-modal')" id="add-professional-btn">
+                        <i class="fas fa-plus"></i> إضافة ترخيص جديد
+                    </button>
+                </div>
+
+                <div class="search-bar">
+                    <input type="text" id="search-professional" placeholder="البحث في التراخيص..." onkeyup="searchProfessional()">
+                    <button class="btn btn-success" onclick="exportToExcel('professional')">
+                        <i class="fas fa-file-excel"></i> تصدير Excel
+                    </button>
+                    <button class="btn btn-secondary" onclick="printSection('professional')">
+                        <i class="fas fa-print"></i> طباعة
+                    </button>
+                    <button class="btn btn-warning" onclick="exportToPDF('professional')">
+                        <i class="fas fa-file-pdf"></i> تصدير PDF
+                    </button>
+                </div>
+
+                <div class="table-container">
+                    <table id="professional-licenses-table">
+                        <thead>
+                            <tr>
+                                <th>رقم الترخيص</th>
+                                <th>اسم المهني</th>
+                                <th>المهنة</th>
+                                <th>المؤهل</th>
+                                <th>تاريخ الإصدار</th>
+                                <th>تاريخ الانتهاء</th>
+                                <th>الحالة</th>
+                                <th>الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- قسم صحة البيئة -->
+            <div id="environment-health" class="content-section">
+                <div class="section-header">
+                    <h2 class="section-title"><i class="fas fa-leaf"></i> صحة البيئة</h2>
+                    <button class="btn" onclick="openModal('environment-modal')" id="add-environment-btn">
+                        <i class="fas fa-plus"></i> إضافة سجل جديد
+                    </button>
+                </div>
+
+                <div class="search-bar">
+                    <input type="text" id="search-environment" placeholder="البحث في السجلات..." onkeyup="searchEnvironment()">
+                    <button class="btn btn-success" onclick="exportToExcel('environment')">
+                        <i class="fas fa-file-excel"></i> تصدير Excel
+                    </button>
+                    <button class="btn btn-secondary" onclick="printSection('environment')">
+                        <i class="fas fa-print"></i> طباعة
+                    </button>
+                    <button class="btn btn-warning" onclick="exportToPDF('environment')">
+                        <i class="fas fa-file-pdf"></i> تصدير PDF
+                    </button>
+                </div>
+
+                <div class="table-container">
+                    <table id="environment-table">
+                        <thead>
+                            <tr>
+                                <th>رقم السجل</th>
+                                <th>اسم المنشأة</th>
+                                <th>نوع النشاط</th>
+                                <th>الموقع</th>
+                                <th>تاريخ التفتيش</th>
+                                <th>نتيجة التفتيش</th>
+                                <th>الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- قسم المالية -->
+            <div id="finance" class="content-section">
+                <div class="section-header">
+                    <h2 class="section-title"><i class="fas fa-money-bill"></i> السجلات المالية</h2>
+                    <button class="btn" onclick="openModal('finance-modal')" id="add-finance-btn">
+                        <i class="fas fa-plus"></i> إضافة سجل مالي
+                    </button>
+                </div>
+
+                <div class="search-bar">
+                    <input type="text" id="search-finance" placeholder="البحث في السجلات المالية..." onkeyup="searchFinance()">
+                    <button class="btn btn-success" onclick="exportToExcel('finance')">
+                        <i class="fas fa-file-excel"></i> تصدير Excel
+                    </button>
+                    <button class="btn btn-secondary" onclick="printSection('finance')">
+                        <i class="fas fa-print"></i> طباعة
+                    </button>
+                    <button class="btn btn-warning" onclick="exportToPDF('finance')">
+                        <i class="fas fa-file-pdf"></i> تصدير PDF
+                    </button>
+                </div>
+
+                <div class="table-container">
+                    <table id="finance-table">
+                        <thead>
+                            <tr>
+                                <th>رقم المعاملة</th>
+                                <th>نوع المعاملة</th>
+                                <th>المبلغ</th>
+                                <th>التاريخ</th>
+                                <th>الوصف</th>
+                                <th>الحالة</th>
+                                <th>الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- قسم رسوم الساحات -->
+            <div id="yard-fees" class="content-section">
+                <div class="section-header">
+                    <h2 class="section-title"><i class="fas fa-warehouse"></i> رسوم الساحات</h2>
+                    <button class="btn" onclick="openModal('yard-modal')" id="add-yard-btn">
+                        <i class="fas fa-plus"></i> إضافة عقد ساحة
+                    </button>
+                </div>
+
+                <div class="search-bar">
+                    <input type="text" id="search-yard" placeholder="البحث في عقود الساحات..." onkeyup="searchYard()">
+                    <button class="btn btn-success" onclick="exportToExcel('yard')">
+                        <i class="fas fa-file-excel"></i> تصدير Excel
+                    </button>
+                    <button class="btn btn-secondary" onclick="printSection('yard')">
+                        <i class="fas fa-print"></i> طباعة
+                    </button>
+                    <button class="btn btn-warning" onclick="exportToPDF('yard')">
+                        <i class="fas fa-file-pdf"></i> تصدير PDF
+                    </button>
+                </div>
+
+                <div class="table-container">
+                    <table id="yard-table">
+                        <thead>
+                            <tr>
+                                <th>رقم العقد</th>
+                                <th>اسم المستأجر</th>
+                                <th>نوع الساحة</th>
+                                <th>المساحة</th>
+                                <th>بداية الإيجار</th>
+                                <th>الإيجار الشهري</th>
+                                <th>المتأخرات</th>
+                                <th>الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- قسم إدارة المستخدمين -->
+            <div id="user-management" class="content-section">
+                <div class="section-header">
+                    <h2 class="section-title"><i class="fas fa-users-cog"></i> إدارة المستخدمين</h2>
+                    <button class="btn" onclick="openModal('user-modal')" id="add-user-btn">
+                        <i class="fas fa-user-plus"></i> إضافة مستخدم
+                    </button>
+                </div>
+
+                <div class="search-bar">
+                    <input type="text" id="search-users" placeholder="البحث في المستخدمين..." onkeyup="searchUsers()">
+                    <button class="btn btn-success" onclick="importData()">
+                        <i class="fas fa-cloud-download-alt"></i> استيراد بيانات
+                    </button>
+                    <input type="file" id="import-file" style="display: none;" accept=".json" onchange="handleImport(event)">
+                </div>
+
+                <div class="table-container">
+                    <table id="users-table">
+                        <thead>
+                            <tr>
+                                <th>اسم المستخدم</th>
+                                <th>الاسم الكامل</th>
+                                <th>القسم</th>
+                                <th>الصلاحيات</th>
+                                <th>آخر دخول</th>
+                                <th>الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- النوافذ المنبثقة -->
+
+    <!-- نافذة ترخيص البناء -->
+    <div id="building-license-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('building-license-modal')">&times;</span>
+            <h2><i class="fas fa-building"></i> ترخيص البناء</h2>
+            
+            <form onsubmit="saveBuildingLicense(event)">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>اسم طالب الترخيص</label>
+                        <input type="text" id="building-applicant" required>
+                    </div>
+                    <div class="form-group">
+                        <label>نوع المبنى</label>
+                        <select id="building-type" required>
+                            <option value="">اختر نوع المبنى</option>
+                            <option value="residential">سكني</option>
+                            <option value="commercial">تجاري</option>
+                            <option value="industrial">صناعي</option>
+                            <option value="administrative">إداري</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>الموقع</label>
+                        <input type="text" id="building-location" required>
+                    </div>
+                    <div class="form-group">
+                        <label>المساحة (متر مربع)</label>
+                        <input type="number" id="building-area" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>الحد الشمالي</label>
+                        <input type="text" id="north-boundary">
+                    </div>
+                    <div class="form-group">
+                        <label>الحد الجنوبي</label>
+                        <input type="text" id="south-boundary">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>الحد الشرقي</label>
+                        <input type="text" id="east-boundary">
+                    </div>
+                    <div class="form-group">
+                        <label>الحد الغربي</label>
+                        <input type="text" id="west-boundary">
+                    </div>
+                </div>
+
+                <h3>الرسوم والأسناد</h3>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>رسوم الترخيص</label>
+                        <input type="number" id="license-fee" onchange="calculateTotal()">
+                    </div>
+                    <div class="form-group">
+                        <label>رقم سند رسوم الترخيص</label>
+                        <input type="text" id="license-receipt">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>تاريخ سند رسوم الترخيص</label>
+                        <input type="date" id="license-receipt-date">
+                    </div>
+                    <div class="form-group">
+                        <label>رسوم رفع المخلفات</label>
+                        <input type="number" id="cleanup-fee" onchange="calculateTotal()">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>رقم سند رفع المخلفات</label>
+                        <input type="text" id="cleanup-receipt">
+                    </div>
+                    <div class="form-group">
+                        <label>تاريخ سند رفع المخلفات</label>
+                        <input type="date" id="cleanup-receipt-date">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>رسوم الكرت</label>
+                        <input type="number" id="card-fee" onchange="calculateTotal()">
+                    </div>
+                    <div class="form-group">
+                        <label>رقم سند الكرت</label>
+                        <input type="text" id="card-receipt">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>تاريخ سند الكرت</label>
+                        <input type="date" id="card-receipt-date">
+                    </div>
+                    <div class="form-group">
+                        <label>إجمالي الرسوم</label>
+                        <input type="number" id="total-fees" readonly>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>المرفقات</label>
+                    <div class="file-upload" onclick="document.getElementById('building-files').click()">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>اضغط هنا لرفع الملفات</p>
+                        <input type="file" id="building-files" multiple accept=".pdf,.jpg,.png,.doc,.docx">
+                    </div>
+                    <div id="building-file-list" class="file-list"></div>
+                </div>
+
+                <div style="text-align: center; margin-top: 30px;">
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-save"></i> حفظ الترخيص
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('building-license-modal')">
+                        <i class="fas fa-times"></i> إلغاء
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- نافذة ترخيص مزاولة المهنة -->
+    <div id="professional-license-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('professional-license-modal')">&times;</span>
+            <h2><i class="fas fa-certificate"></i> ترخيص مزاولة المهنة</h2>
+            
+            <form onsubmit="saveProfessionalLicense(event)">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>اسم المهني</label>
+                        <input type="text" id="professional-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>المهنة</label>
+                        <select id="profession-type" required>
+                            <option value="">اختر المهنة</option>
+                            <option value="engineer">مهندس</option>
+                            <option value="contractor">مقاول</option>
+                            <option value="surveyor">مساح</option>
+                            <option value="architect">معماري</option>
+                            <option value="technician">فني</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>المؤهل العلمي</label>
+                        <input type="text" id="qualification" required>
+                    </div>
+                    <div class="form-group">
+                        <label>سنوات الخبرة</label>
+                        <input type="number" id="experience-years" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>تاريخ الإصدار</label>
+                        <input type="date" id="issue-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label>تاريخ الانتهاء</label>
+                        <input type="date" id="expiry-date" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>المرفقات</label>
+                    <div class="file-upload" onclick="document.getElementById('professional-files').click()">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>اضغط هنا لرفع الملفات</p>
+                        <input type="file" id="professional-files" multiple accept=".pdf,.jpg,.png,.doc,.docx">
+                    </div>
+                    <div id="professional-file-list" class="file-list"></div>
+                </div>
+
+                <div style="text-align: center; margin-top: 30px;">
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-save"></i> حفظ الترخيص
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('professional-license-modal')">
+                        <i class="fas fa-times"></i> إلغاء
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- نافذة صحة البيئة -->
+    <div id="environment-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('environment-modal')">&times;</span>
+            <h2><i class="fas fa-leaf"></i> سجل صحة البيئة</h2>
+            
+            <form onsubmit="saveEnvironmentRecord(event)">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>اسم المنشأة</label>
+                        <input type="text" id="facility-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>نوع النشاط</label>
+                        <select id="activity-type" required>
+                            <option value="">اختر نوع النشاط</option>
+                            <option value="restaurant">مطعم</option>
+                            <option value="factory">مصنع</option>
+                            <option value="hospital">مستشفى</option>
+                            <option value="school">مدرسة</option>
+                            <option value="market">سوق</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>الموقع</label>
+                        <input type="text" id="facility-location" required>
+                    </div>
+                    <div class="form-group">
+                        <label>تاريخ التفتيش</label>
+                        <input type="date" id="inspection-date" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>نتيجة التفتيش</label>
+                        <select id="inspection-result" required>
+                            <option value="">اختر النتيجة</option>
+                            <option value="pass">مطابق</option>
+                            <option value="fail">غير مطابق</option>
+                            <option value="conditional">مطابق بشروط</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>المفتش</label>
+                        <input type="text" id="inspector-name" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>ملاحظات</label>
+                    <textarea id="inspection-notes" rows="4"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>المرفقات</label>
+                    <div class="file-upload" onclick="document.getElementById('environment-files').click()">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>اضغط هنا لرفع الملفات</p>
+                        <input type="file" id="environment-files" multiple accept=".pdf,.jpg,.png,.doc,.docx">
+                    </div>
+                    <div id="environment-file-list" class="file-list"></div>
+                </div>
+
+                <div style="text-align: center; margin-top: 30px;">
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-save"></i> حفظ السجل
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('environment-modal')">
+                        <i class="fas fa-times"></i> إلغاء
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- نافذة المالية -->
+    <div id="finance-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('finance-modal')">&times;</span>
+            <h2><i class="fas fa-money-bill"></i> السجلات المالية</h2>
+            
+            <form onsubmit="saveFinanceRecord(event)">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>نوع المعاملة</label>
+                        <select id="transaction-type" required>
+                            <option value="">اختر نوع المعاملة</option>
+                            <option value="income">إيراد</option>
+                            <option value="expense">مصروف</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>المبلغ</label>
+                        <input type="number" id="amount" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>التاريخ</label>
+                        <input type="date" id="transaction-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label>رقم السند</label>
+                        <input type="text" id="receipt-number">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>الوصف</label>
+                    <textarea id="transaction-description" rows="3" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>المرفقات</label>
+                    <div class="file-upload" onclick="document.getElementById('finance-files').click()">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>اضغط هنا لرفع الملفات</p>
+                        <input type="file" id="finance-files" multiple accept=".pdf,.jpg,.png,.doc,.docx">
+                    </div>
+                    <div id="finance-file-list" class="file-list"></div>
+                </div>
+
+                <div style="text-align: center; margin-top: 30px;">
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-save"></i> حفظ السجل
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('finance-modal')">
+                        <i class="fas fa-times"></i> إلغاء
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- نافذة رسوم الساحات -->
+    <div id="yard-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('yard-modal')">&times;</span>
+            <h2><i class="fas fa-warehouse"></i> عقد ساحة</h2>
+            
+            <form onsubmit="saveYardContract(event)">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>اسم المستأجر</label>
+                        <input type="text" id="tenant-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>نوع الساحة</label>
+                        <select id="yard-type" required>
+                            <option value="">اختر نوع الساحة</option>
+                            <option value="commercial">تجارية</option>
+                            <option value="industrial">صناعية</option>
+                            <option value="storage">تخزين</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>المساحة (متر مربع)</label>
+                        <input type="number" id="yard-area" required>
+                    </div>
+                    <div class="form-group">
+                        <label>بداية الإيجار</label>
+                        <input type="date" id="rental-start" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>الإيجار الشهري</label>
+                        <input type="number" id="monthly-rent" required>
+                    </div>
+                    <div class="form-group">
+                        <label>المتأخرات</label>
+                        <input type="number" id="arrears" value="0">
+                    </div>
+                </div>
+
+                <h3>سجل الدفعات الشهرية</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>يناير - رقم السند</label>
+                        <input type="text" id="jan-receipt">
+                    </div>
+                    <div class="form-group">
+                        <label>يناير - التاريخ</label>
+                        <input type="date" id="jan-date">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>فبراير - رقم السند</label>
+                        <input type="text" id="feb-receipt">
+                    </div>
+                    <div class="form-group">
+                        <label>فبراير - التاريخ</label>
+                        <input type="date" id="feb-date">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>مارس - رقم السند</label>
+                        <input type="text" id="mar-receipt">
+                    </div>
+                    <div class="form-group">
+                        <label>مارس - التاريخ</label>
+                        <input type="date" id="mar-date">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>أبريل - رقم السند</label>
+                        <input type="text" id="apr-receipt">
+                    </div>
+                    <div class="form-group">
+                        <label>أبريل - التاريخ</label>
+                        <input type="date" id="apr-date">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>مايو - رقم السند</label>
+                        <input type="text" id="may-receipt">
+                    </div>
+                    <div class="form-group">
+                        <label>مايو - التاريخ</label>
+                        <input type="date" id="may-date">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>يونيو - رقم السند</label>
+                        <input type="text" id="jun-receipt">
+                    </div>
+                    <div class="form-group">
+                        <label>يونيو - التاريخ</label>
+                        <input type="date" id="jun-date">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>يوليو - رقم السند</label>
+                        <input type="text" id="jul-receipt">
+                    </div>
+                    <div class="form-group">
+                        <label>يوليو - التاريخ</label>
+                        <input type="date" id="jul-date">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>أغسطس - رقم السند</label>
+                        <input type="text" id="aug-receipt">
+                    </div>
+                    <div class="form-group">
+                        <label>أغسطس - التاريخ</label>
+                        <input type="date" id="aug-date">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>سبتمبر - رقم السند</label>
+                        <input type="text" id="sep-receipt">
+                    </div>
+                    <div class="form-group">
+                        <label>سبتمبر - التاريخ</label>
+                        <input type="date" id="sep-date">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>أكتوبر - رقم السند</label>
+                        <input type="text" id="oct-receipt">
+                    </div>
+                    <div class="form-group">
+                        <label>أكتوبر - التاريخ</label>
+                        <input type="date" id="oct-date">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>نوفمبر - رقم السند</label>
+                        <input type="text" id="nov-receipt">
+                    </div>
+                    <div class="form-group">
+                        <label>نوفمبر - التاريخ</label>
+                        <input type="date" id="nov-date">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>ديسمبر - رقم السند</label>
+                        <input type="text" id="dec-receipt">
+                    </div>
+                    <div class="form-group">
+                        <label>ديسمبر - التاريخ</label>
+                        <input type="date" id="dec-date">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>المرفقات</label>
+                    <div class="file-upload" onclick="document.getElementById('yard-files').click()">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>اضغط هنا لرفع الملفات</p>
+                        <input type="file" id="yard-files" multiple accept=".pdf,.jpg,.png,.doc,.docx">
+                    </div>
+                    <div id="yard-file-list" class="file-list"></div>
+                </div>
+
+                <div style="text-align: center; margin-top: 30px;">
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-save"></i> حفظ العقد
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('yard-modal')">
+                        <i class="fas fa-times"></i> إلغاء
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- نافذة إدارة المستخدمين -->
+    <div id="user-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('user-modal')">&times;</span>
+            <h2><i class="fas fa-user-plus"></i> إضافة/تعديل مستخدم</h2>
+            
+            <form onsubmit="saveUser(event)">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>اسم المستخدم</label>
+                        <input type="text" id="new-username" required>
+                    </div>
+                    <div class="form-group">
+                        <label>كلمة المرور</label>
+                        <input type="password" id="new-password" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>الاسم الكامل</label>
+                        <input type="text" id="full-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>القسم</label>
+                        <select id="user-department" required onchange="updatePermissions()">
+                            <option value="">اختر القسم</option>
+                            <option value="admin">المدير</option>
+                            <option value="building">تراخيص البناء</option>
+                            <option value="professional">مزاولة المهنة</option>
+                            <option value="environment">صحة البيئة</option>
+                            <option value="finance">المالية</option>
+                            <option value="yard">رسوم الساحات</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>الصلاحيات</label>
+                    <div id="permissions-container" style="display: flex; flex-wrap: wrap; gap: 5px; padding: 10px; background: #f8f9fa; border-radius: 8px;">
+                        <!-- سيتم ملؤها ديناميكياً -->
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin-top: 30px;">
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-save"></i> حفظ المستخدم
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('user-modal')">
+                        <i class="fas fa-times"></i> إلغاء
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- منطقة الطباعة -->
+    <div id="print-section" class="print-section">
+        <div id="print-content"></div>
+    </div>
+
+    <!-- الرسائل -->
+    <div id="alert-container" style="position: fixed; top: 20px; left: 20px; z-index: 9999;"></div>
+
+    <script>
+        // البيانات
+        let currentUser = null;
+        let appData = {
+            users: [
+                { 
+                    username: 'admin', 
+                    password: 'admin123', 
+                    name: 'المدير العام', 
+                    department: 'admin', 
+                    lastLogin: '', 
+                    permissions: ['all'],
+                    allowedSections: ['building', 'professional', 'environment', 'finance', 'yard', 'user-management']
+                },
+                { 
+                    username: 'building', 
+                    password: 'building123', 
+                    name: 'موظف تراخيص البناء', 
+                    department: 'building', 
+                    lastLogin: '', 
+                    permissions: ['building-view', 'building-add', 'building-edit'],
+                    allowedSections: ['building']
+                },
+                { 
+                    username: 'professional', 
+                    password: 'prof123', 
+                    name: 'موظف مزاولة المهنة', 
+                    department: 'professional', 
+                    lastLogin: '', 
+                    permissions: ['professional-view', 'professional-add', 'professional-edit'],
+                    allowedSections: ['professional']
+                },
+                { 
+                    username: 'environment', 
+                    password: 'env123', 
+                    name: 'موظف صحة البيئة', 
+                    department: 'environment', 
+                    lastLogin: '', 
+                    permissions: ['environment-view', 'environment-add', 'environment-edit'],
+                    allowedSections: ['environment']
+                },
+                { 
+                    username: 'finance', 
+                    password: 'finance123', 
+                    name: 'موظف المالية', 
+                    department: 'finance', 
+                    lastLogin: '', 
+                    permissions: ['finance-view', 'finance-add', 'finance-edit'],
+                    allowedSections: ['finance']
+                },
+                { 
+                    username: 'yard', 
+                    password: 'yard123', 
+                    name: 'موظف رسوم الساحات', 
+                    department: 'yard', 
+                    lastLogin: '', 
+                    permissions: ['yard-view', 'yard-add', 'yard-edit'],
+                    allowedSections: ['yard']
+                }
+            ],
+            buildingLicenses: [],
+            professionalLicenses: [],
+            environmentRecords: [],
+            financeRecords: [],
+            yardContracts: [],
+            attachments: {},
+            auditLog: []
+        };
+
+        // أذونات النظام
+        const systemPermissions = {
+            'admin': ['all'],
+            'building': ['building-view', 'building-add', 'building-edit', 'building-delete', 'building-print', 'building-export'],
+            'professional': ['professional-view', 'professional-add', 'professional-edit', 'professional-delete', 'professional-print', 'professional-export'],
+            'environment': ['environment-view', 'environment-add', 'environment-edit', 'environment-delete', 'environment-print', 'environment-export'],
+            'finance': ['finance-view', 'finance-add', 'finance-edit', 'finance-delete', 'finance-print', 'finance-export'],
+            'yard': ['yard-view', 'yard-add', 'yard-edit', 'yard-delete', 'yard-print', 'yard-export']
+        };
+
+        // تحميل البيانات من التخزين المحلي
+        function loadData() {
+            const savedData = localStorage.getItem('publicWorksData');
+            if (savedData) {
+                const parsed = JSON.parse(savedData);
+                appData = { ...appData, ...parsed };
+            }
+            updateStatistics();
+        }
+
+        // حفظ البيانات في التخزين المحلي
+        function saveData() {
+            localStorage.setItem('publicWorksData', JSON.stringify(appData));
+            logAction('system', 'تم حفظ البيانات تلقائياً');
+        }
+
+        // تسجيل الدخول
+        function login(event) {
+            event.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            const user = appData.users.find(u => u.username === username && u.password === password);
+
+            if (user) {
+                currentUser = user;
+                user.lastLogin = new Date().toLocaleString('ar-SA');
+                
+                document.getElementById('login-page').style.display = 'none';
+                document.getElementById('main-page').style.display = 'block';
+                
+                document.getElementById('user-name').textContent = user.name;
+                document.getElementById('user-department').textContent = getDepartmentName(user.department);
+                
+                // عرض الصلاحيات
+                const permissionsContainer = document.getElementById('user-permissions');
+                permissionsContainer.innerHTML = '';
+                user.permissions.forEach(perm => {
+                    const badge = document.createElement('span');
+                    badge.className = 'permission-badge';
+                    badge.textContent = getPermissionName(perm);
+                    permissionsContainer.appendChild(badge);
+                });
+                
+                // إظهار/إخفاء الأقسام حسب الصلاحيات
+                setupUserPermissions();
+                
+                loadData();
+                renderTables();
+                showAlert('تم تسجيل الدخول بنجاح', 'success');
+                logAction('login', `تسجيل دخول المستخدم ${user.username}`);
+                saveData();
+            } else {
+                showAlert('اسم المستخدم أو كلمة المرور غير صحيحة', 'error');
+                logAction('login_failed', `محاولة تسجيل دخول فاشلة باسم ${username}`);
+            }
+        }
+
+        // إعداد صلاحيات المستخدم
+        function setupUserPermissions() {
+            // إخفاء جميع الأقسام أولاً
+            document.querySelectorAll('.nav-item').forEach(item => item.style.display = 'none');
+            document.querySelectorAll('.content-section').forEach(section => section.style.display = 'none');
+            
+            // إظهار الأقسام المسموحة فقط
+            if (currentUser.allowedSections.includes('user-management')) {
+                document.getElementById('admin-nav').style.display = 'block';
+            }
+            
+            currentUser.allowedSections.forEach(section => {
+                document.getElementById(`${section}-nav`).style.display = 'block';
+            });
+            
+            // تعطيل الأزرار حسب الصلاحيات
+            setupActionButtons();
+        }
+
+        // تعطيل الأزرار حسب الصلاحيات
+        function setupActionButtons() {
+            // أزرار الإضافة
+            document.getElementById('add-building-btn').disabled = !currentUser.permissions.includes('building-add') && !currentUser.permissions.includes('all');
+            document.getElementById('add-professional-btn').disabled = !currentUser.permissions.includes('professional-add') && !currentUser.permissions.includes('all');
+            document.getElementById('add-environment-btn').disabled = !currentUser.permissions.includes('environment-add') && !currentUser.permissions.includes('all');
+            document.getElementById('add-finance-btn').disabled = !currentUser.permissions.includes('finance-add') && !currentUser.permissions.includes('all');
+            document.getElementById('add-yard-btn').disabled = !currentUser.permissions.includes('yard-add') && !currentUser.permissions.includes('all');
+            document.getElementById('add-user-btn').disabled = !currentUser.permissions.includes('all');
+        }
+
+        // تسجيل الخروج
+        function logout() {
+            logAction('logout', `تسجيل خروج المستخدم ${currentUser.username}`);
+            currentUser = null;
+            document.getElementById('login-page').style.display = 'block';
+            document.getElementById('main-page').style.display = 'none';
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+            hideAllSections();
+        }
+
+        // إظهار القسم
+        function showSection(sectionId) {
+            if (!currentUser.allowedSections.includes(sectionId) && !currentUser.permissions.includes('all')) {
+                showAlert('ليس لديك صلاحية الوصول إلى هذا القسم', 'error');
+                return;
+            }
+            
+            hideAllSections();
+            document.getElementById(sectionId).classList.add('active');
+            renderTables();
+        }
+
+        // إخفاء جميع الأقسام
+        function hideAllSections() {
+            const sections = document.querySelectorAll('.content-section');
+            sections.forEach(section => section.classList.remove('active'));
+        }
+
+        // فتح النافذة المنبثقة
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = 'block';
+        }
+
+        // إغلاق النافذة المنبثقة
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+            // إعادة تعيين النموذج
+            const form = document.querySelector(`#${modalId} form`);
+            if (form) form.reset();
+            
+            // مسح قوائم الملفات
+            const fileLists = document.querySelectorAll(`#${modalId} .file-list`);
+            fileLists.forEach(list => list.innerHTML = '');
+        }
+
+        // حساب إجمالي الرسوم
+        function calculateTotal() {
+            const licenseFee = parseFloat(document.getElementById('license-fee').value) || 0;
+            const cleanupFee = parseFloat(document.getElementById('cleanup-fee').value) || 0;
+            const cardFee = parseFloat(document.getElementById('card-fee').value) || 0;
+            
+            const total = licenseFee + cleanupFee + cardFee;
+            document.getElementById('total-fees').value = total;
+        }
+
+        // حفظ ترخيص البناء
+        function saveBuildingLicense(event) {
+            event.preventDefault();
+            
+            if (!currentUser.permissions.includes('building-add') && !currentUser.permissions.includes('all')) {
+                showAlert('ليس لديك صلاحية إضافة تراخيص بناء', 'error');
+                return;
+            }
+            
+            const files = document.getElementById('building-files').files;
+            const fileNames = [];
+            for (let i = 0; i < files.length; i++) {
+                fileNames.push(files[i].name);
+                saveFile(files[i], 'building');
+            }
+            
+            const license = {
+                id: 'BLD-' + new Date().getFullYear() + '-' + (appData.buildingLicenses.length + 1).toString().padStart(3, '0'),
+                applicant: document.getElementById('building-applicant').value,
+                type: document.getElementById('building-type').value,
+                location: document.getElementById('building-location').value,
+                area: document.getElementById('building-area').value,
+                northBoundary: document.getElementById('north-boundary').value,
+                southBoundary: document.getElementById('south-boundary').value,
+                eastBoundary: document.getElementById('east-boundary').value,
+                westBoundary: document.getElementById('west-boundary').value,
+                licenseFee: document.getElementById('license-fee').value,
+                licenseReceipt: document.getElementById('license-receipt').value,
+                licenseReceiptDate: document.getElementById('license-receipt-date').value,
+                cleanupFee: document.getElementById('cleanup-fee').value,
+                cleanupReceipt: document.getElementById('cleanup-receipt').value,
+                cleanupReceiptDate: document.getElementById('cleanup-receipt-date').value,
+                cardFee: document.getElementById('card-fee').value,
+                cardReceipt: document.getElementById('card-receipt').value,
+                cardReceiptDate: document.getElementById('card-receipt-date').value,
+                totalFees: document.getElementById('total-fees').value,
+                date: new Date().toLocaleDateString('ar-SA'),
+                attachments: fileNames,
+                createdBy: currentUser.name
+            };
+
+            appData.buildingLicenses.push(license);
+            saveData();
+            renderTables();
+            updateStatistics();
+            closeModal('building-license-modal');
+            showAlert('تم حفظ ترخيص البناء بنجاح', 'success');
+            logAction('add_building_license', `تم إضافة ترخيص بناء رقم ${license.id}`);
+        }
+
+        // حفظ ترخيص مزاولة المهنة
+        function saveProfessionalLicense(event) {
+            event.preventDefault();
+            
+            if (!currentUser.permissions.includes('professional-add') && !currentUser.permissions.includes('all')) {
+                showAlert('ليس لديك صلاحية إضافة تراخيص مزاولة المهنة', 'error');
+                return;
+            }
+            
+            const files = document.getElementById('professional-files').files;
+            const fileNames = [];
+            for (let i = 0; i < files.length; i++) {
+                fileNames.push(files[i].name);
+                saveFile(files[i], 'professional');
+            }
+            
+            const license = {
+                id: 'PROF-' + new Date().getFullYear() + '-' + (appData.professionalLicenses.length + 1).toString().padStart(3, '0'),
+                name: document.getElementById('professional-name').value,
+                profession: document.getElementById('profession-type').value,
+                qualification: document.getElementById('qualification').value,
+                experienceYears: document.getElementById('experience-years').value,
+                issueDate: document.getElementById('issue-date').value,
+                expiryDate: document.getElementById('expiry-date').value,
+                status: new Date(document.getElementById('expiry-date').value) > new Date() ? 'active' : 'expired',
+                attachments: fileNames,
+                createdBy: currentUser.name
+            };
+
+            appData.professionalLicenses.push(license);
+            saveData();
+            renderTables();
+            updateStatistics();
+            closeModal('professional-license-modal');
+            showAlert('تم حفظ ترخيص مزاولة المهنة بنجاح', 'success');
+            logAction('add_professional_license', `تم إضافة ترخيص مزاولة مهنة رقم ${license.id}`);
+        }
+
+        // حفظ سجل صحة البيئة
+        function saveEnvironmentRecord(event) {
+            event.preventDefault();
+            
+            if (!currentUser.permissions.includes('environment-add') && !currentUser.permissions.includes('all')) {
+                showAlert('ليس لديك صلاحية إضافة سجلات صحة البيئة', 'error');
+                return;
+            }
+            
+            const files = document.getElementById('environment-files').files;
+            const fileNames = [];
+            for (let i = 0; i < files.length; i++) {
+                fileNames.push(files[i].name);
+                saveFile(files[i], 'environment');
+            }
+            
+            const record = {
+                id: 'ENV-' + new Date().getFullYear() + '-' + (appData.environmentRecords.length + 1).toString().padStart(3, '0'),
+                facilityName: document.getElementById('facility-name').value,
+                activityType: document.getElementById('activity-type').value,
+                location: document.getElementById('facility-location').value,
+                inspectionDate: document.getElementById('inspection-date').value,
+                result: document.getElementById('inspection-result').value,
+                inspector: document.getElementById('inspector-name').value,
+                notes: document.getElementById('inspection-notes').value,
+                attachments: fileNames,
+                createdBy: currentUser.name
+            };
+
+            appData.environmentRecords.push(record);
+            saveData();
+            renderTables();
+            updateStatistics();
+            closeModal('environment-modal');
+            showAlert('تم حفظ سجل صحة البيئة بنجاح', 'success');
+            logAction('add_environment_record', `تم إضافة سجل صحة بيئة رقم ${record.id}`);
+        }
+
+        // حفظ السجل المالي
+        function saveFinanceRecord(event) {
+            event.preventDefault();
+            
+            if (!currentUser.permissions.includes('finance-add') && !currentUser.permissions.includes('all')) {
+                showAlert('ليس لديك صلاحية إضافة سجلات مالية', 'error');
+                return;
+            }
+            
+            const files = document.getElementById('finance-files').files;
+            const fileNames = [];
+            for (let i = 0; i < files.length; i++) {
+                fileNames.push(files[i].name);
+                saveFile(files[i], 'finance');
+            }
+            
+            const record = {
+                id: 'FIN-' + new Date().getFullYear() + '-' + (appData.financeRecords.length + 1).toString().padStart(3, '0'),
+                type: document.getElementById('transaction-type').value,
+                amount: document.getElementById('amount').value,
+                date: document.getElementById('transaction-date').value,
+                receiptNumber: document.getElementById('receipt-number').value,
+                description: document.getElementById('transaction-description').value,
+                status: 'completed',
+                attachments: fileNames,
+                createdBy: currentUser.name
+            };
+
+            appData.financeRecords.push(record);
+            saveData();
+            renderTables();
+            updateStatistics();
+            closeModal('finance-modal');
+            showAlert('تم حفظ السجل المالي بنجاح', 'success');
+            logAction('add_finance_record', `تم إضافة سجل مالي رقم ${record.id}`);
+        }
+
+        // حفظ عقد الساحة
+        function saveYardContract(event) {
+            event.preventDefault();
+            
+            if (!currentUser.permissions.includes('yard-add') && !currentUser.permissions.includes('all')) {
+                showAlert('ليس لديك صلاحية إضافة عقود ساحات', 'error');
+                return;
+            }
+            
+            const files = document.getElementById('yard-files').files;
+            const fileNames = [];
+            for (let i = 0; i < files.length; i++) {
+                fileNames.push(files[i].name);
+                saveFile(files[i], 'yard');
+            }
+            
+            const contract = {
+                id: 'YARD-' + new Date().getFullYear() + '-' + (appData.yardContracts.length + 1).toString().padStart(3, '0'),
+                tenantName: document.getElementById('tenant-name').value,
+                yardType: document.getElementById('yard-type').value,
+                area: document.getElementById('yard-area').value,
+                rentalStart: document.getElementById('rental-start').value,
+                monthlyRent: document.getElementById('monthly-rent').value,
+                arrears: document.getElementById('arrears').value,
+                monthlyPayments: {
+                    jan: { receipt: document.getElementById('jan-receipt').value, date: document.getElementById('jan-date').value },
+                    feb: { receipt: document.getElementById('feb-receipt').value, date: document.getElementById('feb-date').value },
+                    mar: { receipt: document.getElementById('mar-receipt').value, date: document.getElementById('mar-date').value },
+                    apr: { receipt: document.getElementById('apr-receipt').value, date: document.getElementById('apr-date').value },
+                    may: { receipt: document.getElementById('may-receipt').value, date: document.getElementById('may-date').value },
+                    jun: { receipt: document.getElementById('jun-receipt').value, date: document.getElementById('jun-date').value },
+                    jul: { receipt: document.getElementById('jul-receipt').value, date: document.getElementById('jul-date').value },
+                    aug: { receipt: document.getElementById('aug-receipt').value, date: document.getElementById('aug-date').value },
+                    sep: { receipt: document.getElementById('sep-receipt').value, date: document.getElementById('sep-date').value },
+                    oct: { receipt: document.getElementById('oct-receipt').value, date: document.getElementById('oct-date').value },
+                    nov: { receipt: document.getElementById('nov-receipt').value, date: document.getElementById('nov-date').value },
+                    dec: { receipt: document.getElementById('dec-receipt').value, date: document.getElementById('dec-date').value }
+                },
+                attachments: fileNames,
+                createdBy: currentUser.name
+            };
+
+            appData.yardContracts.push(contract);
+            saveData();
+            renderTables();
+            updateStatistics();
+            closeModal('yard-modal');
+            showAlert('تم حفظ عقد الساحة بنجاح', 'success');
+            logAction('add_yard_contract', `تم إضافة عقد ساحة رقم ${contract.id}`);
+        }
+
+        // حفظ الملف
+        function saveFile(file, category) {
+            if (!appData.attachments[category]) {
+                appData.attachments[category] = {};
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                appData.attachments[category][file.name] = {
+                    name: file.name,
+                    type: file.type,
+                    size: file.size,
+                    lastModified: file.lastModified,
+                    data: e.target.result.split(',')[1] // حفظ البيانات كـ base64
+                };
+                saveData();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // الحصول على الملف
+        function getFile(category, fileName) {
+            if (appData.attachments[category] && appData.attachments[category][fileName]) {
+                return appData.attachments[category][fileName];
+            }
+            return null;
+        }
+
+        // حفظ المستخدم
+        function saveUser(event) {
+            event.preventDefault();
+            
+            if (!currentUser.permissions.includes('all')) {
+                showAlert('ليس لديك صلاحية إدارة المستخدمين', 'error');
+                return;
+            }
+            
+            const username = document.getElementById('new-username').value;
+            const existingUserIndex = appData.users.findIndex(u => u.username === username);
+            
+            // جمع الصلاحيات المحددة
+            const selectedPermissions = [];
+            document.querySelectorAll('#permissions-container input[type="checkbox"]:checked').forEach(checkbox => {
+                selectedPermissions.push(checkbox.value);
+            });
+            
+            const user = {
+                username: username,
+                password: document.getElementById('new-password').value,
+                name: document.getElementById('full-name').value,
+                department: document.getElementById('user-department').value,
+                lastLogin: existingUserIndex !== -1 ? appData.users[existingUserIndex].lastLogin : '',
+                permissions: selectedPermissions,
+                allowedSections: getAllowedSections(selectedPermissions)
+            };
+
+            if (existingUserIndex !== -1) {
+                appData.users[existingUserIndex] = user;
+                showAlert('تم تعديل المستخدم بنجاح', 'success');
+                logAction('edit_user', `تم تعديل المستخدم ${user.username}`);
+            } else {
+                appData.users.push(user);
+                showAlert('تم إضافة المستخدم بنجاح', 'success');
+                logAction('add_user', `تم إضافة مستخدم جديد ${user.username}`);
+            }
+
+            saveData();
+            renderTables();
+            closeModal('user-modal');
+        }
+
+        // الحصول على الأقسام المسموحة بناءً على الصلاحيات
+        function getAllowedSections(permissions) {
+            const sections = [];
+            
+            if (permissions.includes('all')) {
+                return ['building', 'professional', 'environment', 'finance', 'yard', 'user-management'];
+            }
+            
+            if (permissions.some(p => p.startsWith('building-'))) {
+                sections.push('building');
+            }
+            
+            if (permissions.some(p => p.startsWith('professional-'))) {
+                sections.push('professional');
+            }
+            
+            if (permissions.some(p => p.startsWith('environment-'))) {
+                sections.push('environment');
+            }
+            
+            if (permissions.some(p => p.startsWith('finance-'))) {
+                sections.push('finance');
+            }
+            
+            if (permissions.some(p => p.startsWith('yard-'))) {
+                sections.push('yard');
+            }
+            
+            return sections;
+        }
+
+        // تحديث صلاحيات المستخدم عند تغيير القسم
+        function updatePermissions() {
+            const department = document.getElementById('user-department').value;
+            const container = document.getElementById('permissions-container');
+            container.innerHTML = '';
+            
+            if (!department) return;
+            
+            systemPermissions[department].forEach(perm => {
+                const div = document.createElement('div');
+                div.style.display = 'flex';
+                div.style.alignItems = 'center';
+                div.style.margin = '5px 0';
+                
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.value = perm;
+                checkbox.id = `perm-${perm}`;
+                checkbox.checked = true;
+                
+                const label = document.createElement('label');
+                label.htmlFor = `perm-${perm}`;
+                label.textContent = getPermissionName(perm);
+                label.style.marginRight = '5px';
+                
+                div.appendChild(checkbox);
+                div.appendChild(label);
+                container.appendChild(div);
+            });
+        }
+
+        // عرض الجداول
+        function renderTables() {
+            renderBuildingLicensesTable();
+            renderProfessionalLicensesTable();
+            renderEnvironmentTable();
+            renderFinanceTable();
+            renderYardTable();
+            renderUsersTable();
+        }
+
+        // عرض جدول تراخيص البناء
+        function renderBuildingLicensesTable() {
+            const tbody = document.querySelector('#building-licenses-table tbody');
+            tbody.innerHTML = '';
+
+            appData.buildingLicenses.forEach((license, index) => {
+                const row = tbody.insertRow();
+                
+                let actions = '';
+                if (currentUser.permissions.includes('building-print') || currentUser.permissions.includes('all')) {
+                    actions += `<button class="btn btn-secondary" onclick="printRecord('building', ${index})">
+                        <i class="fas fa-print"></i>
+                    </button>`;
+                }
+                
+                if (currentUser.permissions.includes('building-delete') || currentUser.permissions.includes('all')) {
+                    actions += `<button class="btn btn-danger" onclick="deleteRecord('buildingLicenses', ${index})">
+                        <i class="fas fa-trash"></i>
+                    </button>`;
+                }
+                
+                row.innerHTML = `
+                    <td>${license.id}</td>
+                    <td>${license.applicant}</td>
+                    <td>${getBuildingTypeName(license.type)}</td>
+                    <td>${license.location}</td>
+                    <td>${license.date}</td>
+                    <td>${license.totalFees} ريال</td>
+                    <td class="action-buttons">${actions}</td>
+                `;
+            });
+        }
+
+        // عرض جدول تراخيص مزاولة المهنة
+        function renderProfessionalLicensesTable() {
+            const tbody = document.querySelector('#professional-licenses-table tbody');
+            tbody.innerHTML = '';
+
+            appData.professionalLicenses.forEach((license, index) => {
+                const row = tbody.insertRow();
+                
+                let actions = '';
+                if (currentUser.permissions.includes('professional-print') || currentUser.permissions.includes('all')) {
+                    actions += `<button class="btn btn-secondary" onclick="printRecord('professional', ${index})">
+                        <i class="fas fa-print"></i>
+                    </button>`;
+                }
+                
+                if (currentUser.permissions.includes('professional-delete') || currentUser.permissions.includes('all')) {
+                    actions += `<button class="btn btn-danger" onclick="deleteRecord('professionalLicenses', ${index})">
+                        <i class="fas fa-trash"></i>
+                    </button>`;
+                }
+                
+                row.innerHTML = `
+                    <td>${license.id}</td>
+                    <td>${license.name}</td>
+                    <td>${getProfessionName(license.profession)}</td>
+                    <td>${license.qualification}</td>
+                    <td>${license.issueDate}</td>
+                    <td>${license.expiryDate}</td>
+                    <td><span class="status-badge ${license.status}">${getStatusName(license.status)}</span></td>
+                    <td class="action-buttons">${actions}</td>
+                `;
+            });
+        }
+
+        // عرض جدول صحة البيئة
+        function renderEnvironmentTable() {
+            const tbody = document.querySelector('#environment-table tbody');
+            tbody.innerHTML = '';
+
+            appData.environmentRecords.forEach((record, index) => {
+                const row = tbody.insertRow();
+                
+                let actions = '';
+                if (currentUser.permissions.includes('environment-print') || currentUser.permissions.includes('all')) {
+                    actions += `<button class="btn btn-secondary" onclick="printRecord('environment', ${index})">
+                        <i class="fas fa-print"></i>
+                    </button>`;
+                }
+                
+                if (currentUser.permissions.includes('environment-delete') || currentUser.permissions.includes('all')) {
+                    actions += `<button class="btn btn-danger" onclick="deleteRecord('environmentRecords', ${index})">
+                        <i class="fas fa-trash"></i>
+                    </button>`;
+                }
+                
+                row.innerHTML = `
+                    <td>${record.id}</td>
+                    <td>${record.facilityName}</td>
+                    <td>${getActivityTypeName(record.activityType)}</td>
+                    <td>${record.location}</td>
+                    <td>${record.inspectionDate}</td>
+                    <td><span class="status-badge ${record.result}">${getInspectionResultName(record.result)}</span></td>
+                    <td class="action-buttons">${actions}</td>
+                `;
+            });
+        }
+
+        // عرض جدول المالية
+        function renderFinanceTable() {
+            const tbody = document.querySelector('#finance-table tbody');
+            tbody.innerHTML = '';
+
+            appData.financeRecords.forEach((record, index) => {
+                const row = tbody.insertRow();
+                
+                let actions = '';
+                if (currentUser.permissions.includes('finance-print') || currentUser.permissions.includes('all')) {
+                    actions += `<button class="btn btn-secondary" onclick="printRecord('finance', ${index})">
+                        <i class="fas fa-print"></i>
+                    </button>`;
+                }
+                
+                if (currentUser.permissions.includes('finance-delete') || currentUser.permissions.includes('all')) {
+                    actions += `<button class="btn btn-danger" onclick="deleteRecord('financeRecords', ${index})">
+                        <i class="fas fa-trash"></i>
+                    </button>`;
+                }
+                
+                row.innerHTML = `
+                    <td>${record.id}</td>
+                    <td>${getTransactionTypeName(record.type)}</td>
+                    <td>${record.amount} ريال</td>
+                    <td>${record.date}</td>
+                    <td>${record.description}</td>
+                    <td><span class="status-badge ${record.status}">${getStatusName(record.status)}</span></td>
+                    <td class="action-buttons">${actions}</td>
+                `;
+            });
+        }
+
+        // عرض جدول الساحات
+        function renderYardTable() {
+            const tbody = document.querySelector('#yard-table tbody');
+            tbody.innerHTML = '';
+
+            appData.yardContracts.forEach((contract, index) => {
+                const row = tbody.insertRow();
+                
+                let actions = '';
+                if (currentUser.permissions.includes('yard-print') || currentUser.permissions.includes('all')) {
+                    actions += `<button class="btn btn-secondary" onclick="printRecord('yard', ${index})">
+                        <i class="fas fa-print"></i>
+                    </button>`;
+                }
+                
+                if (currentUser.permissions.includes('yard-delete') || currentUser.permissions.includes('all')) {
+                    actions += `<button class="btn btn-danger" onclick="deleteRecord('yardContracts', ${index})">
+                        <i class="fas fa-trash"></i>
+                    </button>`;
+                }
+                
+                row.innerHTML = `
+                    <td>${contract.id}</td>
+                    <td>${contract.tenantName}</td>
+                    <td>${getYardTypeName(contract.yardType)}</td>
+                    <td>${contract.area} متر مربع</td>
+                    <td>${contract.rentalStart}</td>
+                    <td>${contract.monthlyRent} ريال</td>
+                    <td>${contract.arrears} ريال</td>
+                    <td class="action-buttons">${actions}</td>
+                `;
+            });
+        }
+
+        // عرض جدول المستخدمين
+        function renderUsersTable() {
+            const tbody = document.querySelector('#users-table tbody');
+            tbody.innerHTML = '';
+
+            appData.users.forEach((user, index) => {
+                const row = tbody.insertRow();
+                
+                // عرض الصلاحيات كأيقونات صغيرة
+                const permissionsBadges = user.permissions.map(perm => 
+                    `<span class="permission-badge">${getPermissionName(perm)}</span>`
+                ).join(' ');
+                
+                let actions = '';
+                if (currentUser.permissions.includes('all')) {
+                    actions += `<button class="btn btn-secondary" onclick="editUser(${index})">
+                        <i class="fas fa-edit"></i>
+                    </button>`;
+                    
+                    // لا تسمح بحذف المستخدم الحالي
+                    if (user.username !== currentUser.username) {
+                        actions += `<button class="btn btn-danger" onclick="deleteRecord('users', ${index})">
+                            <i class="fas fa-trash"></i>
+                        </button>`;
+                    }
+                }
+                
+                row.innerHTML = `
+                    <td>${user.username}</td>
+                    <td>${user.name}</td>
+                    <td>${getDepartmentName(user.department)}</td>
+                    <td>${permissionsBadges}</td>
+                    <td>${user.lastLogin || 'لم يسجل دخول بعد'}</td>
+                    <td class="action-buttons">${actions}</td>
+                `;
+            });
+        }
+
+        // تعديل المستخدم
+        function editUser(index) {
+            const user = appData.users[index];
+            document.getElementById('new-username').value = user.username;
+            document.getElementById('new-password').value = user.password;
+            document.getElementById('full-name').value = user.name;
+            document.getElementById('user-department').value = user.department;
+            
+            // تحديث الصلاحيات
+            updatePermissions();
+            
+            // تحديد الصلاحيات الحالية
+            setTimeout(() => {
+                user.permissions.forEach(perm => {
+                    const checkbox = document.getElementById(`perm-${perm}`);
+                    if (checkbox) checkbox.checked = true;
+                });
+            }, 100);
+            
+            openModal('user-modal');
+        }
+
+        // حذف السجل
+        function deleteRecord(type, index) {
+            if (type === 'users' && appData.users[index].username === currentUser.username) {
+                showAlert('لا يمكن حذف المستخدم الحالي', 'error');
+                return;
+            }
+            
+            const record = appData[type][index];
+            const recordType = getRecordTypeName(type);
+            
+            if (confirm(`هل أنت متأكد من حذف ${recordType} رقم ${record.id}؟`)) {
+                appData[type].splice(index, 1);
+                saveData();
+                renderTables();
+                updateStatistics();
+                showAlert(`تم حذف ${recordType} بنجاح`, 'success');
+                logAction('delete_record', `تم حذف ${recordType} رقم ${record.id}`);
+            }
+        }
+
+        // طباعة السجل
+        function printRecord(type, index) {
+            if (!currentUser.permissions.includes(`${type}-print`) && !currentUser.permissions.includes('all')) {
+                showAlert('ليس لديك صلاحية طباعة هذا السجل', 'error');
+                return;
+            }
+            
+            let content = '';
+            let title = '';
+            let record = null;
+            let attachmentsHtml = '';
+
+            switch(type) {
+                case 'building':
+                    record = appData.buildingLicenses[index];
+                    title = 'ترخيص البناء';
+                    content = generateBuildingLicensePrint(record);
+                    
+                    // عرض المرفقات
+                    if (record.attachments && record.attachments.length > 0) {
+                        attachmentsHtml = '<h3 style="margin-top: 30px;">المرفقات</h3><div class="print-attachments">';
+                        record.attachments.forEach(file => {
+                            attachmentsHtml += `<div class="print-attachment-item">
+                                <i class="fas fa-file"></i> ${file}
+                            </div>`;
+                        });
+                        attachmentsHtml += '</div>';
+                    }
+                    break;
+                    
+                case 'professional':
+                    record = appData.professionalLicenses[index];
+                    title = 'ترخيص مزاولة المهنة';
+                    content = generateProfessionalLicensePrint(record);
+                    
+                    if (record.attachments && record.attachments.length > 0) {
+                        attachmentsHtml = '<h3 style="margin-top: 30px;">المرفقات</h3><div class="print-attachments">';
+                        record.attachments.forEach(file => {
+                            attachmentsHtml += `<div class="print-attachment-item">
+                                <i class="fas fa-file"></i> ${file}
+                            </div>`;
+                        });
+                        attachmentsHtml += '</div>';
+                    }
+                    break;
+                    
+                case 'environment':
+                    record = appData.environmentRecords[index];
+                    title = 'سجل صحة البيئة';
+                    content = generateEnvironmentRecordPrint(record);
+                    
+                    if (record.attachments && record.attachments.length > 0) {
+                        attachmentsHtml = '<h3 style="margin-top: 30px;">المرفقات</h3><div class="print-attachments">';
+                        record.attachments.forEach(file => {
+                            attachmentsHtml += `<div class="print-attachment-item">
+                                <i class="fas fa-file"></i> ${file}
+                            </div>`;
+                        });
+                        attachmentsHtml += '</div>';
+                    }
+                    break;
+                    
+                case 'finance':
+                    record = appData.financeRecords[index];
+                    title = 'سجل مالي';
+                    content = generateFinanceRecordPrint(record);
+                    
+                    if (record.attachments && record.attachments.length > 0) {
+                        attachmentsHtml = '<h3 style="margin-top: 30px;">المرفقات</h3><div class="print-attachments">';
+                        record.attachments.forEach(file => {
+                            attachmentsHtml += `<div class="print-attachment-item">
+                                <i class="fas fa-file"></i> ${file}
+                            </div>`;
+                        });
+                        attachmentsHtml += '</div>';
+                    }
+                    break;
+                    
+                case 'yard':
+                    record = appData.yardContracts[index];
+                    title = 'عقد ساحة';
+                    content = generateYardContractPrint(record);
+                    
+                    if (record.attachments && record.attachments.length > 0) {
+                        attachmentsHtml = '<h3 style="margin-top: 30px;">المرفقات</h3><div class="print-attachments">';
+                        record.attachments.forEach(file => {
+                            attachmentsHtml += `<div class="print-attachment-item">
+                                <i class="fas fa-file"></i> ${file}
+                            </div>`;
+                        });
+                        attachmentsHtml += '</div>';
+                    }
+                    break;
+            }
+
+            document.getElementById('print-content').innerHTML = `
+                <div class="print-header">
+                    <h1>مكتب الأشغال العامة والطرق</h1>
+                    <h2>${title}</h2>
+                    <p>تاريخ الطباعة: ${new Date().toLocaleDateString('ar-SA')}</p>
+                </div>
+                
+                ${content}
+                ${attachmentsHtml}
+                
+                <div class="print-footer">
+                    <p>تمت الطباعة بواسطة: ${currentUser.name}</p>
+                    <p>${title} رقم: ${record.id}</p>
+                </div>
+            `;
+            
+            window.print();
+            logAction('print_record', `تم طباعة ${title} رقم ${record.id}`);
+        }
+
+        // طباعة القسم
+        function printSection(type) {
+            if (!currentUser.permissions.includes(`${type}-print`) && !currentUser.permissions.includes('all')) {
+                showAlert('ليس لديك صلاحية طباعة هذا القسم', 'error');
+                return;
+            }
+            
+            let content = '';
+            let title = '';
+
+            switch(type) {
+                case 'building':
+                    title = 'تراخيص البناء';
+                    content = generateBuildingLicensesReport();
+                    break;
+                case 'professional':
+                    title = 'تراخيص مزاولة المهنة';
+                    content = generateProfessionalLicensesReport();
+                    break;
+                case 'environment':
+                    title = 'سجلات صحة البيئة';
+                    content = generateEnvironmentRecordsReport();
+                    break;
+                case 'finance':
+                    title = 'السجلات المالية';
+                    content = generateFinanceRecordsReport();
+                    break;
+                case 'yard':
+                    title = 'عقود الساحات';
+                    content = generateYardContractsReport();
+                    break;
+            }
+
+            document.getElementById('print-content').innerHTML = `
+                <div class="print-header">
+                    <h1>مكتب الأشغال العامة والطرق</h1>
+                    <h2>${title}</h2>
+                    <p>تاريخ التقرير: ${new Date().toLocaleDateString('ar-SA')}</p>
+                </div>
+                
+                ${content}
+                
+                <div class="print-footer">
+                    <p>تمت الطباعة بواسطة: ${currentUser.name}</p>
+                    <p>عدد السجلات: ${appData[`${type}Licenses`]?.length || appData[`${type}Records`]?.length || appData[`${type}Contracts`]?.length || 0}</p>
+                </div>
+            `;
+            
+            window.print();
+            logAction('print_section', `تم طباعة قسم ${title}`);
+        }
+
+        // تصدير إلى Excel
+        function exportToExcel(type) {
+            if (!currentUser.permissions.includes(`${type}-export`) && !currentUser.permissions.includes('all')) {
+                showAlert('ليس لديك صلاحية تصدير هذا القسم', 'error');
+                return;
+            }
+            
+            let data = [];
+            let title = '';
+            let filename = '';
+
+            switch(type) {
+                case 'building':
+                    data = appData.buildingLicenses.map(license => ({
+                        'رقم الترخيص': license.id,
+                        'طالب الترخيص': license.applicant,
+                        'نوع المبنى': getBuildingTypeName(license.type),
+                        'الموقع': license.location,
+                        'المساحة': license.area,
+                        'رسوم الترخيص': license.licenseFee,
+                        'رسوم رفع المخلفات': license.cleanupFee,
+                        'رسوم الكرت': license.cardFee,
+                        'إجمالي الرسوم': license.totalFees,
+                        'التاريخ': license.date,
+                        'الملاحظات': license.notes || 'لا يوجد'
+                    }));
+                    title = 'تراخيص البناء';
+                    filename = 'تراخيص_البناء.xlsx';
+                    break;
+                    
+                case 'professional':
+                    data = appData.professionalLicenses.map(license => ({
+                        'رقم الترخيص': license.id,
+                        'اسم المهني': license.name,
+                        'المهنة': getProfessionName(license.profession),
+                        'المؤهل': license.qualification,
+                        'سنوات الخبرة': license.experienceYears,
+                        'تاريخ الإصدار': license.issueDate,
+                        'تاريخ الانتهاء': license.expiryDate,
+                        'الحالة': getStatusName(license.status),
+                        'الملاحظات': license.notes || 'لا يوجد'
+                    }));
+                    title = 'تراخيص مزاولة المهنة';
+                    filename = 'تراخيص_مزاولة_المهنة.xlsx';
+                    break;
+                    
+                case 'environment':
+                    data = appData.environmentRecords.map(record => ({
+                        'رقم السجل': record.id,
+                        'اسم المنشأة': record.facilityName,
+                        'نوع النشاط': getActivityTypeName(record.activityType),
+                        'الموقع': record.location,
+                        'تاريخ التفتيش': record.inspectionDate,
+                        'المفتش': record.inspector,
+                        'النتيجة': getInspectionResultName(record.result),
+                        'الملاحظات': record.notes || 'لا يوجد'
+                    }));
+                    title = 'سجلات صحة البيئة';
+                    filename = 'سجلات_صحة_البيئة.xlsx';
+                    break;
+                    
+                case 'finance':
+                    data = appData.financeRecords.map(record => ({
+                        'رقم المعاملة': record.id,
+                        'نوع المعاملة': getTransactionTypeName(record.type),
+                        'المبلغ': record.amount,
+                        'التاريخ': record.date,
+                        'رقم السند': record.receiptNumber,
+                        'الوصف': record.description,
+                        'الحالة': getStatusName(record.status),
+                        'الملاحظات': record.notes || 'لا يوجد'
+                    }));
+                    title = 'السجلات المالية';
+                    filename = 'السجلات_المالية.xlsx';
+                    break;
+                    
+                case 'yard':
+                    data = appData.yardContracts.map(contract => ({
+                        'رقم العقد': contract.id,
+                        'اسم المستأجر': contract.tenantName,
+                        'نوع الساحة': getYardTypeName(contract.yardType),
+                        'المساحة': contract.area,
+                        'بداية الإيجار': contract.rentalStart,
+                        'الإيجار الشهري': contract.monthlyRent,
+                        'المتأخرات': contract.arrears,
+                        'الملاحظات': contract.notes || 'لا يوجد'
+                    }));
+                    title = 'عقود الساحات';
+                    filename = 'عقود_الساحات.xlsx';
+                    break;
+            }
+
+            if (data.length === 0) {
+                showAlert('لا توجد بيانات للتصدير', 'error');
+                return;
+            }
+
+            // إنشاء مصنف جديد
+            const wb = XLSX.utils.book_new();
+            
+            // إنشاء ورقة عمل مع تنسيق
+            const ws = XLSX.utils.json_to_sheet(data);
+            
+            // إضافة ترويسة مميزة
+            const headerStyle = {
+                font: { bold: true, color: { rgb: "FFFFFF" } },
+                fill: { fgColor: { rgb: "2c3e50" } },
+                alignment: { horizontal: "center" }
+            };
+            
+            // تطبيق التنسيق على الصف الأول
+            if (!ws["!cols"]) ws["!cols"] = [];
+            for (let i = 0; i < Object.keys(data[0]).length; i++) {
+                const cellRef = XLSX.utils.encode_cell({ r: 0, c: i });
+                if (!ws[cellRef].s) ws[cellRef].s = {};
+                Object.assign(ws[cellRef].s, headerStyle);
+                
+                // ضبط عرض الأعمدة
+                ws["!cols"].push({ wch: 20 });
+            }
+            
+            // إضافة ورقة العمل إلى المصنف
+            XLSX.utils.book_append_sheet(wb, ws, title);
+            
+            // إضافة ورقة معلومات
+            const infoSheet = XLSX.utils.aoa_to_sheet([
+                ["معلومات التصدير"],
+                ["تاريخ التصدير", new Date().toLocaleString('ar-SA')],
+                ["تم التصدير بواسطة", currentUser ? currentUser.name : "النظام"],
+                ["عدد السجلات", data.length]
+            ]);
+            XLSX.utils.book_append_sheet(wb, infoSheet, "معلومات");
+            
+            // حفظ الملف
+            XLSX.writeFile(wb, `${filename}`);
+            showAlert(`تم تصدير ${data.length} سجل إلى ملف Excel`, 'success');
+            logAction('export_excel', `تم تصدير ${title} إلى Excel`);
+        }
+
+        // تصدير إلى PDF
+        function exportToPDF(type) {
+            if (!currentUser.permissions.includes(`${type}-export`) && !currentUser.permissions.includes('all')) {
+                showAlert('ليس لديك صلاحية تصدير هذا القسم', 'error');
+                return;
+            }
+            
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // إضافة ترويسة
+            doc.setFontSize(18);
+            doc.setTextColor(40, 53, 147);
+            doc.text('مكتب الأشغال العامة والطرق', 105, 15, null, null, 'center');
+            
+            let title = '';
+            let content = '';
+            
+            switch(type) {
+                case 'building':
+                    title = 'تراخيص البناء';
+                    content = generateBuildingLicensesReport();
+                    break;
+                case 'professional':
+                    title = 'تراخيص مزاولة المهنة';
+                    content = generateProfessionalLicensesReport();
+                    break;
+                case 'environment':
+                    title = 'سجلات صحة البيئة';
+                    content = generateEnvironmentRecordsReport();
+                    break;
+                case 'finance':
+                    title = 'السجلات المالية';
+                    content = generateFinanceRecordsReport();
+                    break;
+                case 'yard':
+                    title = 'عقود الساحات';
+                    content = generateYardContractsReport();
+                    break;
+            }
+            
+            doc.setFontSize(14);
+            doc.setTextColor(0, 0, 0);
+            doc.text(title, 105, 25, null, null, 'center');
+            
+            doc.setFontSize(10);
+            doc.text(`تاريخ التصدير: ${new Date().toLocaleString('ar-SA')}`, 15, 35);
+            doc.text(`تم التصدير بواسطة: ${currentUser.name}`, 105, 35, null, null, 'center');
+            doc.text(`عدد السجلات: ${appData[`${type}Licenses`]?.length || appData[`${type}Records`]?.length || appData[`${type}Contracts`]?.length || 0}`, 195, 35, null, null, 'right');
+            
+            // إضافة المحتوى
+            const element = document.createElement('div');
+            element.innerHTML = content;
+            document.body.appendChild(element);
+            
+            html2canvas(element).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const imgWidth = doc.internal.pageSize.getWidth() - 20;
+                const imgHeight = canvas.height * imgWidth / canvas.width;
+                
+                doc.addImage(imgData, 'PNG', 10, 45, imgWidth, imgHeight);
+                doc.save(`${title}_${new Date().toISOString().split('T')[0]}.pdf`);
+                document.body.removeChild(element);
+                
+                showAlert(`تم تصدير البيانات إلى PDF بنجاح`, 'success');
+                logAction('export_pdf', `تم تصدير ${title} إلى PDF`);
+            });
+        }
+
+        // البحث
+        function searchBuilding() {
+            const searchTerm = document.getElementById('search-building').value.toLowerCase();
+            const rows = document.querySelectorAll('#building-licenses-table tbody tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        }
+
+        function searchProfessional() {
+            const searchTerm = document.getElementById('search-professional').value.toLowerCase();
+            const rows = document.querySelectorAll('#professional-licenses-table tbody tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        }
+
+        function searchEnvironment() {
+            const searchTerm = document.getElementById('search-environment').value.toLowerCase();
+            const rows = document.querySelectorAll('#environment-table tbody tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        }
+
+        function searchFinance() {
+            const searchTerm = document.getElementById('search-finance').value.toLowerCase();
+            const rows = document.querySelectorAll('#finance-table tbody tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        }
+
+        function searchYard() {
+            const searchTerm = document.getElementById('search-yard').value.toLowerCase();
+            const rows = document.querySelectorAll('#yard-table tbody tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        }
+
+        function searchUsers() {
+            const searchTerm = document.getElementById('search-users').value.toLowerCase();
+            const rows = document.querySelectorAll('#users-table tbody tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        }
+
+        // تحديث الإحصائيات
+        function updateStatistics() {
+            document.getElementById('building-licenses-count').textContent = appData.buildingLicenses.length;
+            document.getElementById('professional-licenses-count').textContent = appData.professionalLicenses.length;
+            document.getElementById('environment-records-count').textContent = appData.environmentRecords.length;
+            document.getElementById('finance-records-count').textContent = appData.financeRecords.length;
+            document.getElementById('yard-contracts-count').textContent = appData.yardContracts.length;
+        }
+
+        // النسخ الاحتياطي
+        function backupData() {
+            if (!currentUser.permissions.includes('all')) {
+                showAlert('ليس لديك صلاحية إنشاء نسخة احتياطية', 'error');
+                return;
+            }
+            
+            // إضافة تاريخ ووقت النسخ الاحتياطي
+            const backupInfo = {
+                timestamp: new Date().toISOString(),
+                data: appData,
+                user: currentUser ? currentUser.username : 'غير معروف'
+            };
+            
+            const dataString = JSON.stringify(backupInfo, null, 2);
+            const blob = new Blob([dataString], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `backup_${new Date().toISOString().split('T')[0]}_${currentUser ? currentUser.username : 'system'}.json`;
+            a.click();
+            
+            URL.revokeObjectURL(url);
+            
+            // إضافة خيار إرسال إلى البريد الإلكتروني
+            if (confirm('هل تريد إرسال النسخة الاحتياطية إلى البريد الإلكتروني؟')) {
+                sendBackupEmail(dataString);
+            }
+            
+            showAlert('تم إنشاء النسخة الاحتياطية بنجاح', 'success');
+            logAction('backup', 'تم إنشاء نسخة احتياطية');
+        }
+
+        // استيراد البيانات
+        function importData() {
+            if (!currentUser.permissions.includes('all')) {
+                showAlert('ليس لديك صلاحية استيراد البيانات', 'error');
+                return;
+            }
+            
+            document.getElementById('import-file').click();
+        }
+
+        function handleImport(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+                    
+                    if (confirm('هل تريد استبدال البيانات الحالية بالبيانات المستوردة؟')) {
+                        appData = importedData.data || importedData;
+                        saveData();
+                        renderTables();
+                        updateStatistics();
+                        showAlert('تم استيراد البيانات بنجاح', 'success');
+                        logAction('import_data', 'تم استيراد بيانات من نسخة احتياطية');
+                    }
+                } catch (error) {
+                    showAlert('خطأ في قراءة ملف النسخة الاحتياطية', 'error');
+                    logAction('import_failed', 'فشل في استيراد البيانات');
+                }
+                
+                // إعادة تعيين قيمة الملف للسماح باستيراد نفس الملف مرة أخرى
+                event.target.value = '';
+            };
+            reader.readAsText(file);
+        }
+
+        // إرسال النسخة الاحتياطية للبريد الإلكتروني
+        function sendBackupEmail(data) {
+            // محاكاة إرسال البريد الإلكتروني
+            console.log('Sending backup to wajag93@gmail.com');
+            console.log('Data size:', data.length, 'characters');
+            
+            // في التطبيق الحقيقي، ستحتاج إلى استخدام خدمة إرسال البريد الإلكتروني
+            // مثل EmailJS أو خدمة خلفية
+            showAlert('تم إرسال النسخة الاحتياطية إلى البريد الإلكتروني', 'success');
+            logAction('email_backup', 'تم إرسال نسخة احتياطية بالبريد الإلكتروني');
+        }
+
+        // تسجيل الإجراءات
+        function logAction(action, details) {
+            appData.auditLog.push({
+                timestamp: new Date().toISOString(),
+                user: currentUser ? currentUser.username : 'system',
+                action,
+                details
+            });
+            saveData();
+        }
+
+        // عرض الرسائل
+        function showAlert(message, type) {
+            const alertContainer = document.getElementById('alert-container');
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.textContent = message;
+            alert.style.display = 'block';
+            
+            alertContainer.appendChild(alert);
+            
+            setTimeout(() => {
+                alert.remove();
+            }, 5000);
+        }
+
+        // الحصول على أسماء الأقسام والأنواع
+        function getDepartmentName(dept) {
+            const names = {
+                'admin': 'المدير العام',
+                'building': 'تراخيص البناء',
+                'professional': 'مزاولة المهنة',
+                'environment': 'صحة البيئة',
+                'finance': 'المالية',
+                'yard': 'رسوم الساحات'
+            };
+            return names[dept] || dept;
+        }
+
+        function getPermissionName(perm) {
+            const names = {
+                'all': 'جميع الصلاحيات',
+                'building-view': 'عرض تراخيص البناء',
+                'building-add': 'إضافة تراخيص بناء',
+                'building-edit': 'تعديل تراخيص بناء',
+                'building-delete': 'حذف تراخيص بناء',
+                'building-print': 'طباعة تراخيص بناء',
+                'building-export': 'تصدير تراخيص بناء',
+                'professional-view': 'عرض تراخيص المهنة',
+                'professional-add': 'إضافة تراخيص مهنة',
+                'professional-edit': 'تعديل تراخيص مهنة',
+                'professional-delete': 'حذف تراخيص مهنة',
+                'professional-print': 'طباعة تراخيص مهنة',
+                'professional-export': 'تصدير تراخيص مهنة',
+                'environment-view': 'عرض سجلات البيئة',
+                'environment-add': 'إضافة سجلات بيئة',
+                'environment-edit': 'تعديل سجلات بيئة',
+                'environment-delete': 'حذف سجلات بيئة',
+                'environment-print': 'طباعة سجلات بيئة',
+                'environment-export': 'تصدير سجلات بيئة',
+                'finance-view': 'عرض سجلات مالية',
+                'finance-add': 'إضافة سجلات مالية',
+                'finance-edit': 'تعديل سجلات مالية',
+                'finance-delete': 'حذف سجلات مالية',
+                'finance-print': 'طباعة سجلات مالية',
+                'finance-export': 'تصدير سجلات مالية',
+                'yard-view': 'عرض عقود الساحات',
+                'yard-add': 'إضافة عقود ساحات',
+                'yard-edit': 'تعديل عقود ساحات',
+                'yard-delete': 'حذف عقود ساحات',
+                'yard-print': 'طباعة عقود ساحات',
+                'yard-export': 'تصدير عقود ساحات'
+            };
+            return names[perm] || perm;
+        }
+
+        function getBuildingTypeName(type) {
+            const names = {
+                'residential': 'سكني',
+                'commercial': 'تجاري',
+                'industrial': 'صناعي',
+                'administrative': 'إداري'
+            };
+            return names[type] || type;
+        }
+
+        function getProfessionName(profession) {
+            const names = {
+                'engineer': 'مهندس',
+                'contractor': 'مقاول',
+                'surveyor': 'مساح',
+                'architect': 'معماري',
+                'technician': 'فني'
+            };
+            return names[profession] || profession;
+        }
+
+        function getActivityTypeName(type) {
+            const names = {
+                'restaurant': 'مطعم',
+                'factory': 'مصنع',
+                'hospital': 'مستشفى',
+                'school': 'مدرسة',
+                'market': 'سوق'
+            };
+            return names[type] || type;
+        }
+
+        function getTransactionTypeName(type) {
+            const names = {
+                'income': 'إيراد',
+                'expense': 'مصروف'
+            };
+            return names[type] || type;
+        }
+
+        function getYardTypeName(type) {
+            const names = {
+                'commercial': 'تجارية',
+                'industrial': 'صناعية',
+                'storage': 'تخزين'
+            };
+            return names[type] || type;
+        }
+
+        function getStatusName(status) {
+            const names = {
+                'active': 'نشط',
+                'expired': 'منتهي',
+                'completed': 'مكتمل',
+                'pending': 'معلق'
+            };
+            return names[status] || status;
+        }
+
+        function getInspectionResultName(result) {
+            const names = {
+                'pass': 'مطابق',
+                'fail': 'غير مطابق',
+                'conditional': 'مطابق بشروط'
+            };
+            return names[result] || result;
+        }
+
+        function getRecordTypeName(type) {
+            const names = {
+                'buildingLicenses': 'ترخيص البناء',
+                'professionalLicenses': 'ترخيص مزاولة المهنة',
+                'environmentRecords': 'سجل صحة البيئة',
+                'financeRecords': 'سجل مالي',
+                'yardContracts': 'عقد ساحة',
+                'users': 'مستخدم'
+            };
+            return names[type] || type;
+        }
+
+        // عرض قائمة الملفات
+        function displayFileList(inputId, listId) {
+            const files = document.getElementById(inputId).files;
+            const list = document.getElementById(listId);
+            list.innerHTML = '';
+
+            for (let i = 0; i < files.length; i++) {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                fileItem.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                        <span><i class="fas fa-file"></i> ${files[i].name}</span>
+                        <div>
+                            <span style="margin: 0 10px;">${(files[i].size / 1024).toFixed(1)} KB</span>
+                            <button class="btn btn-danger" style="padding: 2px 5px; font-size: 12px;" 
+                                    onclick="removeFile('${inputId}', ${i}, this)">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                list.appendChild(fileItem);
+            }
+        }
+
+        // حذف ملف من القائمة
+        function removeFile(inputId, index, button) {
+            const input = document.getElementById(inputId);
+            const files = Array.from(input.files);
+            files.splice(index, 1);
+            
+            // إنشاء DataTransfer جديد وتعيين الملفات المتبقية
+            const dataTransfer = new DataTransfer();
+            files.forEach(file => dataTransfer.items.add(file));
+            input.files = dataTransfer.files;
+            
+            // إزالة العنصر من القائمة
+            button.closest('.file-item').remove();
+        }
+
+        // دوال إنتاج التقارير للطباعة
+        function generateBuildingLicensePrint(license) {
+            return `
+                <div style="text-align: right; direction: rtl; font-family: Arial;">
+                    <h2 style="color: #2c3e50; border-bottom: 1px solid #eee; padding-bottom: 10px;">ترخيص البناء</h2>
+                    
+                    <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+                        <tr>
+                            <td style="width: 30%; padding: 8px; border: 1px solid #ddd; font-weight: bold;">رقم الترخيص</td>
+                            <td style="width: 70%; padding: 8px; border: 1px solid #ddd;">${license.id}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">طالب الترخيص</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">${license.applicant}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">نوع المبنى</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">${getBuildingTypeName(license.type)}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">الموقع</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">${license.location}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">المساحة</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">${license.area} متر مربع</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">الحدود</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">
+                                شمال: ${license.northBoundary}<br>
+                                جنوب: ${license.southBoundary}<br>
+                                شرق: ${license.eastBoundary}<br>
+                                غرب: ${license.westBoundary}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">إجمالي الرسوم</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">${license.totalFees} ريال</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">تاريخ الإصدار</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">${license.date}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">تم الإنشاء بواسطة</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">${license.createdBy}</td>
+                        </tr>
+                    </table>
+                </div>
+            `;
+        }
+
+        function generateProfessionalLicensePrint(license) {
+            return `
+                <div style="text-align: right; direction: rtl; font-family: Arial;">
+                    <h2 style="color: #2c3e50; border-bottom: 1px solid #eee; padding-bottom: 10px;">ترخيص مزاولة المهنة</h2>
+                    
+                    <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+                        <tr>
+                            <td style="width: 30%; padding: 8px; border: 1px solid #ddd; font-weight: bold;">رقم الترخيص</td>
+                            <td style="width: 70%; padding: 8px; border: 1px solid #ddd;">${license.id}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">اسم المهني</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">${license.name}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">المهنة</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">${getProfessionName(license.profession)}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">المؤهل العلمي</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">${license.qualification}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">سنوات الخبرة</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">${license.experienceYears}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">تاريخ الإصدار</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">${license.issueDate}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">تاريخ الانتهاء</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">${license.expiryDate}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">الحالة</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">${getStatusName(license.status)}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">تم الإنشاء بواسطة</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">${license.createdBy}</td>
+                        </tr>
+                    </table>
+                </div>
+            `;
+        }
+
+        function generateEnvironmentRecordPrint(record) {
+            return `
+                <div style="text-align: right; direction: rtl; font-family: Arial;">
+                    <h2 style="color: #2c3e50; border-bottom: 1px solid #eee; padding-bottom: 10px;">سجل صحة البيئة</h2>
+                    
+                    <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+                        <tr>
+                            <td style="width: 30%; padding: 8px; border: 1px solid #ddd; font-weight: bold;">رقم السجل</td>
+                            <td style="width: 70%; padding: 8px; border: 1px solid #ddd;">${record.id}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">اسم المنشأة</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">${record.facilityName}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">نوع النشاط</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">${getActivityTypeName(record.activityType)}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">الموقع</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">${record.location}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">تاريخ التفتيش</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">${record.inspectionDate}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">المفتش</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">${record.inspector}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">نتيجة التفتيش</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">${getInspectionResultName(record.result)}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">ملاحظات</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">${record.notes || 'لا يوجد'}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">تم الإنشاء بواسطة</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">${record.createdBy}</td>
+                        </tr>
+                    </table>
+                </div>
+            `;
+        }
+
+        function generateFinanceRecordPrint(record) {
+            return `
+                <div style="text-align: right; direction: rtl; font-family: Arial;">
+                    <h2 style="color: #2c3e50; border-bottom: 1px solid #eee; padding-bottom: 10px;">سجل مالي</h2>
+                    
+                    <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+                        <tr>
+                            <td style="width: 30%; padding: 8px; border: 1px solid #ddd; font-weight: bold;">رقم المعاملة</td>
+                            <td style="width: 70%; padding: 8px; border: 1px solid #ddd;">${record.id}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">نوع المعاملة</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">${getTransactionTypeName(record.type)}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">المبلغ</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">${record.amount} ريال</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">التاريخ</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">${record.date}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">رقم السند</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">${record.receiptNumber || 'لا يوجد'}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">الوصف</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">${record.description}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">الحالة</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">${getStatusName(record.status)}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">تم الإنشاء بواسطة</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">${record.createdBy}</td>
+                        </tr>
+                    </table>
+                </div>
+            `;
+        }
+
+        function generateYardContractPrint(contract) {
+            let monthlyPaymentsHtml = '';
+            const months = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
+            const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+            
+            months.forEach((month, index) => {
+                if (contract.monthlyPayments[month].receipt) {
+                    monthlyPaymentsHtml += `<li>${monthNames[index]}: سند رقم ${contract.monthlyPayments[month].receipt} بتاريخ ${contract.monthlyPayments[month].date}</li>`;
+                }
+            });
+
+            return `
+                <div style="text-align: right; direction: rtl; font-family: Arial;">
+                    <h2 style="color: #2c3e50; border-bottom: 1px solid #eee; padding-bottom: 10px;">عقد ساحة</h2>
+                    
+                    <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+                        <tr>
+                            <td style="width: 30%; padding: 8px; border: 1px solid #ddd; font-weight: bold;">رقم العقد</td>
+                            <td style="width: 70%; padding: 8px; border: 1px solid #ddd;">${contract.id}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">اسم المستأجر</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">${contract.tenantName}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">نوع الساحة</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">${getYardTypeName(contract.yardType)}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">المساحة</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">${contract.area} متر مربع</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">بداية الإيجار</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">${contract.rentalStart}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">الإيجار الشهري</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">${contract.monthlyRent} ريال</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">المتأخرات</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">${contract.arrears} ريال</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">الدفعات المسجلة</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">
+                                <ul style="margin: 0; padding-right: 15px;">${monthlyPaymentsHtml || 'لا يوجد دفعات مسجلة'}</ul>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">تم الإنشاء بواسطة</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">${contract.createdBy}</td>
+                        </tr>
+                    </table>
+                </div>
+            `;
+        }
+
+        function generateBuildingLicensesReport() {
+            let html = '<table class="print-table">';
+            html += '<tr><th>رقم الترخيص</th><th>طالب الترخيص</th><th>نوع المبنى</th><th>الموقع</th><th>إجمالي الرسوم</th><th>التاريخ</th></tr>';
+            
+            appData.buildingLicenses.forEach(license => {
+                html += `<tr>
+                    <td>${license.id}</td>
+                    <td>${license.applicant}</td>
+                    <td>${getBuildingTypeName(license.type)}</td>
+                    <td>${license.location}</td>
+                    <td>${license.totalFees} ريال</td>
+                    <td>${license.date}</td>
+                </tr>`;
+            });
+            
+            html += '</table>';
+            return html;
+        }
+
+        function generateProfessionalLicensesReport() {
+            let html = '<table class="print-table">';
+            html += '<tr><th>رقم الترخيص</th><th>اسم المهني</th><th>المهنة</th><th>المؤهل</th><th>تاريخ الإصدار</th><th>تاريخ الانتهاء</th><th>الحالة</th></tr>';
+            
+            appData.professionalLicenses.forEach(license => {
+                html += `<tr>
+                    <td>${license.id}</td>
+                    <td>${license.name}</td>
+                    <td>${getProfessionName(license.profession)}</td>
+                    <td>${license.qualification}</td>
+                    <td>${license.issueDate}</td>
+                    <td>${license.expiryDate}</td>
+                    <td>${getStatusName(license.status)}</td>
+                </tr>`;
+            });
+            
+            html += '</table>';
+            return html;
+        }
+
+        function generateEnvironmentRecordsReport() {
+            let html = '<table class="print-table">';
+            html += '<tr><th>رقم السجل</th><th>اسم المنشأة</th><th>نوع النشاط</th><th>الموقع</th><th>تاريخ التفتيش</th><th>النتيجة</th></tr>';
+            
+            appData.environmentRecords.forEach(record => {
+                html += `<tr>
+                    <td>${record.id}</td>
+                    <td>${record.facilityName}</td>
+                    <td>${getActivityTypeName(record.activityType)}</td>
+                    <td>${record.location}</td>
+                    <td>${record.inspectionDate}</td>
+                    <td>${getInspectionResultName(record.result)}</td>
+                </tr>`;
+            });
+            
+            html += '</table>';
+            return html;
+        }
+
+        function generateFinanceRecordsReport() {
+            let html = '<table class="print-table">';
+            html += '<tr><th>رقم المعاملة</th><th>نوع المعاملة</th><th>المبلغ</th><th>التاريخ</th><th>الوصف</th><th>الحالة</th></tr>';
+            
+            appData.financeRecords.forEach(record => {
+                html += `<tr>
+                    <td>${record.id}</td>
+                    <td>${getTransactionTypeName(record.type)}</td>
+                    <td>${record.amount} ريال</td>
+                    <td>${record.date}</td>
+                    <td>${record.description}</td>
+                    <td>${getStatusName(record.status)}</td>
+                </tr>`;
+            });
+            
+            html += '</table>';
+            return html;
+        }
+
+        function generateYardContractsReport() {
+            let html = '<table class="print-table">';
+            html += '<tr><th>رقم العقد</th><th>اسم المستأجر</th><th>نوع الساحة</th><th>المساحة</th><th>بداية الإيجار</th><th>الإيجار الشهري</th><th>المتأخرات</th></tr>';
+            
+            appData.yardContracts.forEach(contract => {
+                html += `<tr>
+                    <td>${contract.id}</td>
+                    <td>${contract.tenantName}</td>
+                    <td>${getYardTypeName(contract.yardType)}</td>
+                    <td>${contract.area} متر مربع</td>
+                    <td>${contract.rentalStart}</td>
+                    <td>${contract.monthlyRent} ريال</td>
+                    <td>${contract.arrears} ريال</td>
+                </tr>`;
+            });
+            
+            html += '</table>';
+            return html;
+        }
+
+        // إضافة مستمع للملفات المرفوعة
+        document.getElementById('building-files').addEventListener('change', function() {
+            displayFileList('building-files', 'building-file-list');
+        });
+
+        document.getElementById('professional-files').addEventListener('change', function() {
+            displayFileList('professional-files', 'professional-file-list');
+        });
+
+        document.getElementById('environment-files').addEventListener('change', function() {
+            displayFileList('environment-files', 'environment-file-list');
+        });
+
+        document.getElementById('finance-files').addEventListener('change', function() {
+            displayFileList('finance-files', 'finance-file-list');
+        });
+
+        document.getElementById('yard-files').addEventListener('change', function() {
+            displayFileList('yard-files', 'yard-file-list');
+        });
+
+        // حفظ البيانات تلقائياً كل 30 ثانية
+        setInterval(saveData, 30000);
+
+        // تحميل البيانات عند بدء التطبيق
+        window.addEventListener('load', function() {
+            loadData();
+        });
+    </script>
+</body>
+</html>
